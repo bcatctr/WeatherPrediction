@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  period: 
+  time: 
+  lon: 1.5
+  lat: 1.5
+
+two:
+  period: 
+  time: 
+  lon: 1.5
+  lat: 1.5

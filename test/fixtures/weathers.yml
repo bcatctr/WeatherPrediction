@@ -1,0 +1,19 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  time: 
+  date: 
+  temperature: 1.5
+  condition: 
+  windSpeed: 1.5
+  windDirection: 1.5
+  rainFall: 1.5
+
+two:
+  time: 
+  date: 
+  temperature: 1.5
+  condition: 
+  windSpeed: 1.5
+  windDirection: 1.5
+  rainFall: 1.5
