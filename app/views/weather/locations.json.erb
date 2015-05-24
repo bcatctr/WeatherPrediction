@@ -1,0 +1,13 @@
+{
+    <%= "date".to_json.html_safe %>:<%= Time.now.strftime("%d-%m-%Y").to_json.html_safe %>,
+    <%= "locations".to_json.html_safe %>:[
+        <%  @locations.each_with_index do |l,i|%>
+        {
+            <%= "id".to_json.html_safe%>:<%=l.location_id.to_json.html_safe%>,
+            <%="lat".to_json.html_safe%>:<%=l.lat.to_json.html_safe%>,
+            <%="lon".to_json.html_safe%>:<%=l.long.to_json.html_safe%>,
+            <%="last_update".to_json.html_safe%>:<%=l.updated_at.strftime("%H:%M%p %d-%m-%Y").downcase.to_json.html_safe%>
+        }<% if i!=(@locations.length-1)%>,<%end%>
+        <% end%>
+    ]
+}

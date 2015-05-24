@@ -29,7 +29,7 @@ class Parser < ActiveRecord::Base
           hour+=12
         end
         second = time_string[1].scan(/\d\d/)[0]
-        weather.time=Time.new(Time.now.year,Time.now.month,day,hour,second)
+        weather.time=Time.utc(Time.now.year,Time.now.month,day,hour,second)
         weather.date = weather.time.strftime("%d-%m-%Y")
         temperature=d.css("td[headers*='-tmp']").children.to_s
         if temperature!='-'
@@ -55,6 +55,8 @@ class Parser < ActiveRecord::Base
           $pre_rainfallAmount[loc.id][0]=0.0
           $pre_rainfallAmount[loc.id][1]=0
         end
+        weather.created_at=Time.utc(*Time.new.to_a)
+        weather.updated_at=Time.utc(*Time.new.to_a)
         weather.save
       end
     end
@@ -72,7 +74,7 @@ class Parser < ActiveRecord::Base
           hour+=12
         end
         second = time_string[1].scan(/\d\d/)[0]
-        weather.time=Time.new(Time.new.year,Time.new.month,day,hour,second)
+        weather.time=Time.utc(Time.new.year,Time.new.month,day,hour,second)
         weather.date = weather.time.strftime("%d-%m-%Y")
         temperature=d.css("td[headers*='-tmp']").children.to_s
         if temperature!='-'
@@ -98,6 +100,8 @@ class Parser < ActiveRecord::Base
           $pre_rainfallAmount[loc.id][0]=0.0
           $pre_rainfallAmount[loc.id][1]=0
         end
+        weather.created_at=Time.utc(*Time.new.to_a)
+        weather.updated_at=Time.utc(*Time.new.to_a)
         weather.save
       end
     end
@@ -125,10 +129,10 @@ class Parser < ActiveRecord::Base
           if postcode==nil
             postcode = PostCode.create(postCode_id:post)
           end
-          newLocation = Location.create(location_id:name,lat:lat,long:long,postCode_id:postcode.id)
+          newLocation = Location.create(location_id:name,lat:lat,long:long,postCode_id:postcode.id,created_at:Time.utc(*Time.new.to_a),updated_at:Time.utc(*Time.new.to_a))
           puts "names:#{newLocation.location_id} created with postcode"
         else
-          newLocation = Location.create(location_id:name,lat:lat,long:long)
+          newLocation = Location.create(location_id:name,lat:lat,long:long,created_at:Time.utc(*Time.new.to_a),updated_at:Time.utc(*Time.new.to_a))
           puts "names:#{newLocation.location_id} created without postcode"
         end
       end

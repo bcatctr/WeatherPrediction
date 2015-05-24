@@ -3,7 +3,7 @@ class WeatherController < ApplicationController
     @locations=Location.all
     respond_to  do |format|
       format.html
-      format.json {render json:@locations}
+      format.json
     end
   end
 end

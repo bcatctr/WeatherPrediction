@@ -1,0 +1,24 @@
+<h1>Listing Location</h1>
+<div style="overflow-x: auto; overflow-y: auto; height: 480px; width:920px;">
+  <table  border="5"  bordercolor="#00CCCC" width="900" cellpadding="100">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Lat</th>
+      <th>Lon</th>
+      <th>Last_update</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @locations.each do |location| %>
+        <tr>
+          <td><%= location.location_id %></td>
+          <td><%= location.lat %></td>
+          <td><%= location.long%></td>
+          <td><%= location.updated_at.strftime("%H:%M%p %d-%m-%Y").downcase%></td>
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+</div>
+<br>
