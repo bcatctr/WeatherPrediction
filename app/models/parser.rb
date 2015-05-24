@@ -29,7 +29,7 @@ class Parser < ActiveRecord::Base
           hour+=12
         end
         second = time_string[1].scan(/\d\d/)[0]
-        weather.time=Time.new(Time.new.year,Time.new.month,day,hour,second)
+        weather.time=Time.new(Time.now.year,Time.now.month,day,hour,second)
         weather.date = weather.time.strftime("%d-%m-%Y")
         temperature=d.css("td[headers*='-tmp']").children.to_s
         if temperature!='-'
