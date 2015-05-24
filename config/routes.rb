@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
   get 'weather/locations'
+  get 'weather/data/:post_code/:date', to: 'weather#showByPostcode', constraints: {post_code:/3\d{3}/}
+  get 'weather/data/:location_id/:date', to: 'weather#showByLocation'
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
 
