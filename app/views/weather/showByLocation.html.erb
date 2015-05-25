@@ -1,1 +1,44 @@
-<%= %>
+<h1><div class="alert alert-success" role="alert">Listing Weathers in <%=params[:location_id] %> at <%=params[:date] %></div></h1>
+<table  class="table table-hover">
+  <caption><strong>Current</strong></caption>
+  <thead>
+  <tr>
+    <th>Date</th>
+    <th>Current_temp</th>
+    <th>Current_cond</th>
+  </tr>
+  </thead>
+  <tbody>
+      <tr>
+        <td><%= Time.now.strftime("%d-%m-%Y")%></td>
+        <td><%= @weathers_currently["temperature"] %></td>
+        <td><%= @weathers_currently["condition"]%></td>
+      </tr>
+  </tbody>
+</table>
+<br>
+  <table  class="table table-hover">
+    <caption><strong>History</strong></caption>
+    <thead>
+    <tr>
+      <th>Time</th>
+      <th>Temp(°C)</th>
+      <th>Precip(mm/h)</th>
+      <th>Wind_direction</th>
+      <th>Wind_speed(km/h)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @weathers.each do |a| %>
+        <tr>
+          <td><%= a.time.strftime("%H:%M:%S %p").downcase%></td>
+          <td><%= a.temperature%></td>
+          <td><%= a.rainFall%></td>
+          <td><%= Parser.windDirectionToString a.windDirection%></td>
+          <td><%= a.windSpeed%></td>
+          
+        </tr>
+    <% end %>
+    </tbody>
+  </table>
+<br>

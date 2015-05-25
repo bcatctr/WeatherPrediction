@@ -40,12 +40,12 @@ class Parser < ActiveRecord::Base
           weather.windSpeed=windSpeed.to_f
         end
         windDir=self.windDirectionToFloat d.css("td[headers*='-wind-dir']").children.to_s
-        if windDir!=-1
+        if windDir!=-2
           weather.windDirection=windDir
         end
         rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
-        if rainFall!='-'
-          weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*6
+        if rainFall!='-'&&rainFall!='Trace'
+          weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
           if($pre_rainfallAmount[loc.id][1]==0)
             weather.rainFall=0.0
             $pre_rainfallAmount[loc.id][1]=1
@@ -74,7 +74,7 @@ class Parser < ActiveRecord::Base
           hour+=12
         end
         second = time_string[1].scan(/\d\d/)[0]
-        weather.time=Time.utc(Time.new.year,Time.new.month,day,hour,second)
+        weather.time=Time.utc(Time.now.year,Time.now.month,day,hour,second)
         weather.date = weather.time.strftime("%d-%m-%Y")
         temperature=d.css("td[headers*='-tmp']").children.to_s
         if temperature!='-'
@@ -85,12 +85,12 @@ class Parser < ActiveRecord::Base
           weather.windSpeed=windSpeed.to_f
         end
         windDir=self.windDirectionToFloat d.css("td[headers*='-wind-dir']").children.to_s
-        if windDir!=-1
+        if windDir!=-2
           weather.windDirection=windDir
         end
         rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
-        if rainFall!='-'
-          weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*6
+        if rainFall!='-'&&rainFall!='Trace'
+          weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
           if($pre_rainfallAmount[loc.id][1]==0)
             weather.rainFall=0.0
             $pre_rainfallAmount[loc.id][1]=1
@@ -124,16 +124,12 @@ class Parser < ActiveRecord::Base
         post = a.first.postal_code.to_i
         lat=location[0].to_f
         long=location[1].to_f
-        if post!=nil
+        if post!=0
           postcode=PostCode.find_by(postCode_id:post)
           if postcode==nil
             postcode = PostCode.create(postCode_id:post)
           end
           newLocation = Location.create(location_id:name,lat:lat,long:long,postCode_id:postcode.id,created_at:Time.utc(*Time.new.to_a),updated_at:Time.utc(*Time.new.to_a))
-          puts "names:#{newLocation.location_id} created with postcode"
-        else
-          newLocation = Location.create(location_id:name,lat:lat,long:long,created_at:Time.utc(*Time.new.to_a),updated_at:Time.utc(*Time.new.to_a))
-          puts "names:#{newLocation.location_id} created without postcode"
         end
       end
     end
@@ -144,7 +140,7 @@ class Parser < ActiveRecord::Base
     lat_long=loc.lat.to_s+","+loc.long.to_s
     forecast = JSON.parse(open("#{FORECAST_URL}/#{API_KEY}/#{lat_long}").read)
     current=forecast["currently"]
-    return {"temperature"=>current["temperature"],"condition"=>current["summary"]}
+    return {"temperature"=>((current["temperature"]-32)/1.8).round(2),"condition"=>current["summary"]}
   end
 
   def self.windDirectionToFloat windDir
@@ -181,46 +177,52 @@ class Parser < ActiveRecord::Base
         return 315
       when "NNW"
         return 337.5
+      when "CALM"
+        return -1   #show the wind direction is calm
       else
-        return -1    #show the weather is calm
+        return -2   #show the wind direction is '-'
     end
   end
 
   def self.windDirectionToString windDir
-    if (windDir>=0&&windDir<=11.25)||(windDir>=348.75&&windDir<=360)
-      return "N"
-    elsif windDir>=11.25&&windDir<=33.75
-      return "NNE"
-    elsif windDir>33.75&&windDir<=56.25
-      return "NE"
-    elsif windDir>56.25&&windDir<=78.75
-      return "ENE"
-    elsif windDir>78.75&&windDir<=101.25
-      return "E"
-    elsif windDir>101.25&&windDir<=123.75
-      return "ESE"
-    elsif windDir>123.75&&windDir<=146.25
-      return "SE"
-    elsif windDir>146.25&&windDir<=168.75
-      return "SSE"
-    elsif windDir>168.75&&windDir<=191.25
-      return "E"
-    elsif windDir>191.25&&windDir<=213.75
-      return "SSW"
-    elsif windDir>213.75&&windDir<=236.25
-      return "SW"
-    elsif windDir>236.25&&windDir<=258.25
-      return "WSW"
-    elsif windDir>258.75&&windDir<=281.25
-      return "W"
-    elsif windDir>281.25&&windDir<=303.75
-      return "WNW"
-    elsif windDir>303.75&&windDir<=326.25
-      return "NW"
-    elsif windDir>326.25&&windDir<348.75
-      return "NNW"
+    if windDir!=nil
+      if (windDir>=0&&windDir<=11.25)||(windDir>=348.75&&windDir<=360)
+        return "N"
+      elsif windDir>=11.25&&windDir<=33.75
+        return "NNE"
+      elsif windDir>33.75&&windDir<=56.25
+        return "NE"
+      elsif windDir>56.25&&windDir<=78.75
+        return "ENE"
+      elsif windDir>78.75&&windDir<=101.25
+        return "E"
+      elsif windDir>101.25&&windDir<=123.75
+        return "ESE"
+      elsif windDir>123.75&&windDir<=146.25
+        return "SE"
+      elsif windDir>146.25&&windDir<=168.75
+        return "SSE"
+      elsif windDir>168.75&&windDir<=191.25
+        return "E"
+      elsif windDir>191.25&&windDir<=213.75
+        return "SSW"
+      elsif windDir>213.75&&windDir<=236.25
+        return "SW"
+      elsif windDir>236.25&&windDir<=258.25
+        return "WSW"
+      elsif windDir>258.75&&windDir<=281.25
+        return "W"
+      elsif windDir>281.25&&windDir<=303.75
+        return "WNW"
+      elsif windDir>303.75&&windDir<=326.25
+        return "NW"
+      elsif windDir>326.25&&windDir<348.75
+        return "NNW"
+      else
+        return "CALM"
+      end
     else
-      return "CALM"
+      return "-"
     end
   end
 end

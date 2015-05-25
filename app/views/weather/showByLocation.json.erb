@@ -1,0 +1,16 @@
+{
+    <%= "date".to_json.html_safe %>:<%= Time.now.strftime("%d-%m-%Y").to_json.html_safe %>,
+    <%= "current_temp".to_json.html_safe %>:<%=@weathers_currently["temperature"].to_s.to_json.html_safe%>,
+    <%= "condition".to_json.html_safe %>:<%=@weathers_currently["condition"].to_json.html_safe%>,
+    <%= "measurements".to_json.html_safe %>:[
+        <%  @weathers.each_with_index do |a,i|%>
+        {
+            <%="time".to_json.html_safe%>:<%=a.time.strftime("%H:%M:%S %p").downcase.to_json.html_safe%>,
+            <%="temp".to_json.html_safe%>:<%=a.temperature.to_s.to_json.html_safe%>,
+            <%="precip".to_json.html_safe%>:<%=(a.rainFall.to_s+"mm").to_json.html_safe%>,
+            <%= "wind_direction".to_json.html_safe%>:<%= (Parser.windDirectionToString a.windDirection).to_s.to_json.html_safe%>,
+            <%= "wind_speed".to_json.html_safe%>:<%=a.windSpeed.to_s.to_json.html_safe%>
+        }<% if i!=(@weathers.length-1)%>,<%end%>
+        <% end%>
+    ]
+}

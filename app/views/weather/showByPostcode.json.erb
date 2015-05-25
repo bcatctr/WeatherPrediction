@@ -1,0 +1,25 @@
+{
+    <%= "date".to_json.html_safe %>:<%= Time.now.strftime("%d-%m-%Y").to_json.html_safe %>,
+    <%= "locations".to_json.html_safe %>:[
+        <% @locations.each_with_index do |location,i|%>
+        {
+            <%= "id".to_json.html_safe%>: <%=location.location_id.to_json.html_safe%>,
+            <%="lat".to_json.html_safe%>: <%=location.lat.to_s.to_json.html_safe%>,
+            <%="lon".to_json.html_safe%>: <%=location.long.to_s.to_json.html_safe%>,
+            <%="last_update".to_json.html_safe%>: <%=location.updated_at.strftime("%H:%M%p %d-%m-%Y").downcase.to_json.html_safe%>,
+            <%="measurements".to_json.html_safe%>:[
+                <% locationWeathers=location.weathers.where("date=?",params[:date])%>
+                <% locationWeathers.each_with_index do |w,j|%>
+                {
+                    <%="time".to_json.html_safe%>:<%=w.time.strftime("%H:%M:%S %p").downcase.to_json.html_safe%>,
+                    <%="temp".to_json.html_safe%>:<%=w.temperature.to_s.to_json.html_safe%>,
+                    <%="precip".to_json.html_safe%>:<%=(w.rainFall.to_s+"mm").to_json.html_safe%>,
+                    <%= "wind_direction".to_json.html_safe%>:<%= (Parser.windDirectionToString w.windDirection).to_s.to_json.html_safe%>,
+                    <%= "wind_speed".to_json.html_safe%>:<%=w.windSpeed.to_s.to_json.html_safe%>
+                }<% if j!=(locationWeathers.length-1)%>,<%end%>
+                <% end%>
+            ]
+        }<% if i!=(@locations.length-1)%>,<%end%>
+        <% end%>
+    ]
+}

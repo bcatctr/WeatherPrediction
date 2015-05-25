@@ -1,1 +1,49 @@
-<%= %>
+<h1><div class="alert alert-success" role="alert">Listing Weathers in <%=params[:post_code] %> at <%=params[:date] %></div></h1>
+<h2><div class="alert alert-info" role="alert">Today : <%= Time.now.strftime("%d-%m-%Y")%></div></h2>
+<br>
+<% @locations.each_with_index do |l,i|%>
+    <h3><div class="alert alert-warning" role="alert">Station <%= i+1%>: <%= l.location_id%></div></h3>
+    <table  class="table table-hover">
+        <caption><strong>Station Details</strong></caption>
+        <thead>
+            <tr>
+              <th>Lat</th>
+              <th>Log</th>
+              <th>Last_update</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+              <th><%= l.lat%></th>
+              <th><%= l.long%></th>
+              <th><%= l.updated_at.strftime("%H:%M%p %d-%m-%Y").downcase%></th>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <table  class="table table-hover">
+      <caption><strong>History Weathers</strong></caption>
+      <thead>
+        <tr>
+            <th>Time</th>
+            <th>Temp(°C)</th>
+            <th>Precip(mm/h)</th>
+            <th>Wind_direction</th>
+            <th>Wind_speed(km/h)</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% l.weathers.where("date=?",params[:date]).each do |w| %>
+        <tr>
+            <td><%= w.time.strftime("%H:%M:%S %p").downcase%></td>
+            <td><%= w.temperature%></td>
+            <td><%= w.rainFall%></td>
+            <td><%= Parser.windDirectionToString w.windDirection%></td>
+            <td><%= w.windSpeed%></td>
+      </tr>
+      <% end %>
+  </tbody>
+</table>
+    <br>
+<% end %>
+<br>
