@@ -9,10 +9,14 @@ class WeatherController < ApplicationController
   end
 
   def showByPostcode
+    postcode = params[:post_code]
+    date = params[:date]
 
   end
 
   def showByLocation
-
+    location_id=params[:location_id]
+    loc=Location.find_by(location_id:location_id)
+    @weathers=loc.weathers.where("date=?",params[:date])
   end
 end
