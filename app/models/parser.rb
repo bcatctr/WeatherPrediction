@@ -27,37 +27,46 @@ class Parser < ActiveRecord::Base
         hour = time_string[0].to_i
         if time_string[1].include? 'pm'
           hour+=12
+          if hour==24
+            hour=12
+          end
+        else
+          if hour==12
+            hour=0
+          end
         end
         second = time_string[1].scan(/\d\d/)[0]
         weather.time=Time.utc(Time.now.year,Time.now.month,day,hour,second)
-        weather.date = weather.time.strftime("%d-%m-%Y")
-        temperature=d.css("td[headers*='-tmp']").children.to_s
-        if temperature!='-'
-          weather.temperature=temperature.to_f
-        end
-        windSpeed=d.css("td[headers*='-wind-spd-kmh']").children.to_s
-        if windSpeed!='-'
-          weather.windSpeed=windSpeed.to_f
-        end
-        windDir=self.windDirectionToFloat d.css("td[headers*='-wind-dir']").children.to_s
-        if windDir!=-2
-          weather.windDirection=windDir
-        end
-        rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
-        if rainFall!='-'&&rainFall!='Trace'
-          weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
-          if($pre_rainfallAmount[loc.id][1]==0)
-            weather.rainFall=0.0
-            $pre_rainfallAmount[loc.id][1]=1
+        if loc.weathers.find_by(time:weather.time)==nil
+          weather.date = weather.time.strftime("%d-%m-%Y")
+          temperature=d.css("td[headers*='-tmp']").children.to_s
+          if temperature!='-'
+            weather.temperature=temperature.to_f
           end
-          $pre_rainfallAmount[loc.id][0]=rainFall.to_f
-        else
-          $pre_rainfallAmount[loc.id][0]=0.0
-          $pre_rainfallAmount[loc.id][1]=0
+          windSpeed=d.css("td[headers*='-wind-spd-kmh']").children.to_s
+          if windSpeed!='-'
+            weather.windSpeed=windSpeed.to_f
+          end
+          windDir=self.windDirectionToFloat d.css("td[headers*='-wind-dir']").children.to_s
+          if windDir!=-2
+            weather.windDirection=windDir
+          end
+          rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
+          if rainFall!='-'&&rainFall!='Trace'
+            weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
+            if($pre_rainfallAmount[loc.id][1]==0)
+              weather.rainFall=0.0
+              $pre_rainfallAmount[loc.id][1]=1
+            end
+            $pre_rainfallAmount[loc.id][0]=rainFall.to_f
+          else
+            $pre_rainfallAmount[loc.id][0]=0.0
+            $pre_rainfallAmount[loc.id][1]=0
+          end
+          weather.created_at=Time.utc(*Time.new.to_a)
+          weather.updated_at=Time.utc(*Time.new.to_a)
+          weather.save
         end
-        weather.created_at=Time.utc(*Time.new.to_a)
-        weather.updated_at=Time.utc(*Time.new.to_a)
-        weather.save
       end
     end
     doc2.each do |d|
@@ -72,37 +81,46 @@ class Parser < ActiveRecord::Base
         hour = time_string[0].to_i
         if time_string[1].include? 'pm'
           hour+=12
+          if hour==24
+            hour=12
+          end
+        else
+          if hour==12
+            hour=0
+          end
         end
         second = time_string[1].scan(/\d\d/)[0]
         weather.time=Time.utc(Time.now.year,Time.now.month,day,hour,second)
-        weather.date = weather.time.strftime("%d-%m-%Y")
-        temperature=d.css("td[headers*='-tmp']").children.to_s
-        if temperature!='-'
-          weather.temperature=temperature.to_f
-        end
-        windSpeed=d.css("td[headers*='-wind-spd-kmh']").children.to_s
-        if windSpeed!='-'
-          weather.windSpeed=windSpeed.to_f
-        end
-        windDir=self.windDirectionToFloat d.css("td[headers*='-wind-dir']").children.to_s
-        if windDir!=-2
-          weather.windDirection=windDir
-        end
-        rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
-        if rainFall!='-'&&rainFall!='Trace'
-          weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
-          if($pre_rainfallAmount[loc.id][1]==0)
-            weather.rainFall=0.0
-            $pre_rainfallAmount[loc.id][1]=1
+        if loc.weathers.find_by(time:weather.time)==nil
+          weather.date = weather.time.strftime("%d-%m-%Y")
+          temperature=d.css("td[headers*='-tmp']").children.to_s
+          if temperature!='-'
+            weather.temperature=temperature.to_f
           end
-          $pre_rainfallAmount[loc.id][0]=rainFall.to_f
-        else
-          $pre_rainfallAmount[loc.id][0]=0.0
-          $pre_rainfallAmount[loc.id][1]=0
+          windSpeed=d.css("td[headers*='-wind-spd-kmh']").children.to_s
+          if windSpeed!='-'
+            weather.windSpeed=windSpeed.to_f
+          end
+          windDir=self.windDirectionToFloat d.css("td[headers*='-wind-dir']").children.to_s
+          if windDir!=-2
+            weather.windDirection=windDir
+          end
+          rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
+          if rainFall!='-'&&rainFall!='Trace'
+            weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
+            if($pre_rainfallAmount[loc.id][1]==0)
+              weather.rainFall=0.0
+              $pre_rainfallAmount[loc.id][1]=1
+            end
+            $pre_rainfallAmount[loc.id][0]=rainFall.to_f
+          else
+            $pre_rainfallAmount[loc.id][0]=0.0
+            $pre_rainfallAmount[loc.id][1]=0
+          end
+          weather.created_at=Time.utc(*Time.new.to_a)
+          weather.updated_at=Time.utc(*Time.new.to_a)
+          weather.save
         end
-        weather.created_at=Time.utc(*Time.new.to_a)
-        weather.updated_at=Time.utc(*Time.new.to_a)
-        weather.save
       end
     end
   end
