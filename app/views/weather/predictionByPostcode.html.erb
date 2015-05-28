@@ -1,0 +1,64 @@
+<h1><div class="alert alert-success" role="alert">Weather Prediction for Postcode <%= params[:post_code]%></div></h1>
+<br>
+<table  class="table table-hover">
+  <caption><strong>Current</strong></caption>
+  <thead>
+  <tr>
+    <th>Time</th>
+    <th>Temp</th>
+    <th>Probability</th>
+    <th>Precip(mm/h)</th>
+    <th>Probability</th>
+    <th>Wind_direction</th>
+    <th>Probability</th>
+    <th>Wind_speed(km/h)</th>
+    <th>Probability</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><%= @p["predictions"]["0"]["time"] %></td>
+    <td><%= @p["predictions"]["0"]["temp"]["value"] %></td>
+    <td><%= @p["predictions"]["0"]["temp"]["probability"] %></td>
+    <td><%= @p["predictions"]["0"]["rain"]["value"] %></td>
+    <td><%= @p["predictions"]["0"]["rain"]["probability"] %></td>
+    <td><%= @p["predictions"]["0"]["wind direction"]["value"] %></td>
+    <td><%= @p["predictions"]["0"]["wind direction"]["probability"] %></td>
+    <td><%= @p["predictions"]["0"]["wind speed"]["value"] %></td>
+    <td><%= @p["predictions"]["0"]["wind speed"]["probability"] %></td>
+
+  </tr>
+  </tbody>
+</table>
+<br>
+<table  class="table table-hover">
+  <caption><strong>In <%= params[:period]%> Minutes</strong></caption>
+  <thead>
+  <tr>
+    <th>Time</th>
+    <th>Temp</th>
+    <th>Probability</th>
+    <th>Precip(mm/h)</th>
+    <th>Probability</th>
+    <th>Wind_direction</th>
+    <th>Probability</th>
+    <th>Wind_speed(km/h)</th>
+    <th>Probability</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr>
+    <td><%= @p["predictions"]["period"]["time"] %></td>
+    <td><%= @p["predictions"]["period"]["temp"]["value"] %></td>
+    <td><%= @p["predictions"]["period"]["temp"]["probability"] %></td>
+    <td><%= @p["predictions"]["period"]["rain"]["value"] %></td>
+    <td><%= @p["predictions"]["period"]["rain"]["probability"] %></td>
+    <td><%= @p["predictions"]["period"]["wind direction"]["value"] %></td>
+    <td><%= @p["predictions"]["period"]["wind direction"]["probability"] %></td>
+    <td><%= @p["predictions"]["period"]["wind speed"]["value"] %></td>
+    <td><%= @p["predictions"]["period"]["wind speed"]["probability"] %></td>
+
+  </tr>
+  </tbody>
+</table>
+<br>

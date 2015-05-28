@@ -131,8 +131,8 @@ class Parser < ActiveRecord::Base
     urls = url_base.map { |link| "http://www.bom.gov.au#{link['href']}"}
     urls.each  do |url|
       d = Nokogiri::HTML(open(url))
-      names = d.to_s.scan(/<h1>Latest Weather Observations for [[[:alpha:]][[:blank:]]]{3,}/)
-      name = names[0].split("for")[1].strip
+      names = d.to_s.scan(/<h1>Latest Weather Observations for [[[:alpha:]][[:blank:]]()]{3,}/)
+      name = names[0].split(" for ")[1].strip
       if Location.find_by(location_id:name)==nil
         s = d.css("[class='stationdetails']").to_s
         location = s.scan(/-?\d{2,3}\.\d{2,3}/)

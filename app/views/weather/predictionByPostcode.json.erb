@@ -1,0 +1,43 @@
+{
+    <%= "location_id".to_json.html_safe %>:<%= @p["location_id"].to_json.html_safe %>,
+    <%= "predictions".to_json.html_safe %>:{
+        <%= "0".to_json.html_safe %>:{
+            <%= "time".to_json.html_safe %>:<%=@p["predictions"]["0"]["time"].to_json.html_safe %>,
+            <%= "rain".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= (@p["predictions"]["0"]["rain"]["value"].to_s+"mm").to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["0"]["rain"]["probability"].to_s.to_json.html_safe%>
+            },
+            <%= "temp".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= @p["predictions"]["0"]["temp"]["value"].to_s.to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["0"]["temp"]["probability"].to_s.to_json.html_safe%>
+            },
+            <%= "wind speed".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= @p["predictions"]["0"]["wind speed"]["value"].to_s.to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["0"]["wind speed"]["probability"].to_s.to_json.html_safe%>
+            },
+            <%= "wind direction".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= @p["predictions"]["0"]["wind direction"]["value"].to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["0"]["wind direction"]["probability"].to_json.html_safe%>
+            }
+        },
+        <%= @p["predictions"]["period"]["pretime"].to_json.html_safe %>:{
+            <%= "time".to_json.html_safe %>:<%=@p["predictions"]["period"]["time"].to_json.html_safe %>,
+            <%= "rain".to_json.html_safe %> {
+                <%= "value".to_json.html_safe %>:<%= (@p["predictions"]["period"]["rain"]["value"].to_s+"mm").to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["period"]["rain"]["probability"].to_s.to_json.html_safe%>
+            },
+            <%= "temp".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= @p["predictions"]["period"]["temp"]["value"].to_s.to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["period"]["temp"]["probability"].to_s.to_json.html_safe%>
+            },
+            <%= "wind speed".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= @p["predictions"]["period"]["wind speed"]["value"].to_s.to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["period"]["wind speed"]["probability"].to_s.to_json.html_safe%>
+            },
+            <%= "wind direction".to_json.html_safe %>:{
+                <%= "value".to_json.html_safe %>:<%= @p["predictions"]["period"]["wind direction"]["value"].to_s.to_json.html_safe%>,
+                <%= "probability".to_json.html_safe %>:<%= @p["predictions"]["period"]["wind direction"]["probability"].to_s.to_json.html_safe%>
+            }
+        }
+    }
+}
