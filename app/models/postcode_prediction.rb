@@ -295,9 +295,9 @@ class PostcodePrediction < ActiveRecord::Base
     period_wdd_pro= (period_wind_speed==0)?period_ws_pro:(PostcodePrediction.new.best_fit(history_time,wind_direction,current_time)[1]).round(2)
 
     prediction_wind_speed=PostcodePrediction.new.best_fit(history_time,wind_speed,prediction_time)[0].abs.round(2)
-    prediction_wind_speed=(prediction_wind_speed>0&&prediction_wind_speed<60)?prediction_wind_speed:(PostcodePrediction.average wind_speed)
+    prediction_wind_speed=(prediction_wind_speed>0&&prediction_wind_speed<60)?prediction_wind_speed:(PostcodePrediction.average wind_speed).round(2)
     prediction_temperature=(PostcodePrediction.new.best_fit(history_time,temperature,prediction_time)[0]-tep_m).round(2)
-    prediction_temperature=(prediction_temperature>0&&prediction_temperature<30)?prediction_temperature:(PostcodePrediction.average temperature)
+    prediction_temperature=(prediction_temperature>0&&prediction_temperature<30)?prediction_temperature:(PostcodePrediction.average temperature).round(2)
     prediction_wind_direction=(period_wind_speed==0)?"CALM":(Parser.windDirectionToString (PostcodePrediction.new.best_fit(history_time,wind_direction,prediction_time)[0]-wd_m))
     prediction_rainfall=PostcodePrediction.new.best_fit(history_time,rain_fall,prediction_time)[0].abs.round(2)
     predic_temp_pro=PostcodePrediction.new.best_fit(history_time,temperature,prediction_time)[1].round(2)
