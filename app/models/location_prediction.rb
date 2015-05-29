@@ -245,23 +245,28 @@ class LocationPrediction < ActiveRecord::Base
     current_time=hour*60+minute+1
 
     find_date=now_time.strftime("%d-%m-%Y")
-
-    min=10000000000
-    nearest_loc=[0,0]
-    obj=[lat,long]
+    find_weather=[]
+    find_location=nil
     loc=[]
     Location.all.each do |l|
       loc.push([l.lat,l.long])
     end
-    loc.each do |x|
-      dist=Geocoder::Calculations.distance_between(x, obj)
-      if dist<min
-        min=dist
-        nearest_loc=x
+    while find_weather.length==0 do
+      min=10000000000
+      nearest_loc=[0,0]
+      obj=[lat,long]
+      loc.each do |x|
+        dist=Geocoder::Calculations.distance_between(x, obj)
+        if dist<min
+          min=dist
+          nearest_loc=x
+        end
       end
+      find_location=Location.find_by(lat:nearest_loc[0],long:nearest_loc[1])
+      find_weather= find_location.weathers.where("date=?",find_date )
+      loc.delete(nearest_loc)
     end
-    nearest_loc=Location.find_by(lat:nearest_loc[0],long:nearest_loc[1])
-    find_weather= nearest_loc.weathers.where("date=?",find_date )
+
 
     find_weather.each do|i|
       t_hour=i.time.hour
@@ -290,7 +295,7 @@ class LocationPrediction < ActiveRecord::Base
     periodtemp=(periodtemp>0&&periodtemp<30)?periodtemp:(LocationPrediction.average temperature).round(2)
     periodtemp_rs=(LocationPrediction.find_best_fit(history_time,temperature,prediction_time)[1]).round(2)
     periodwindspeed=(LocationPrediction.find_best_fit(history_time,wind_speed,prediction_time)[0]).round(2)
-    periodwindspeed=(periodwindspeed>0&&periodwindspeed<60)?periodwindspeed:(LocationPrediction.average wind_speed).round(2)
+    periodwindspeed=(periodwindspeed>0&&periodwindspeed<100)?periodwindspeed:(LocationPrediction.average wind_speed).round(2)
     periodwindspeed_rs=(LocationPrediction.find_best_fit(history_time,wind_speed,prediction_time)[1]).round(2)
     periodwinddir=(periodwindspeed==0)?"CALM":(Parser.windDirectionToString (LocationPrediction.find_best_fit(history_time,wind_direction,prediction_time)[0]-wind_m).round(2))
     periodwinddir_rs=(periodwindspeed==0)?periodwindspeed_rs:(LocationPrediction.find_best_fit(history_time,wind_direction,prediction_time)[1]).round(2)
@@ -298,8 +303,10 @@ class LocationPrediction < ActiveRecord::Base
     periodrain_rs=(LocationPrediction.find_best_fit(history_time,rainfall_amount,prediction_time)[1]).round(2)
 
     currenttemp=(LocationPrediction.find_best_fit(history_time,temperature,current_time)[0]-temp_m).round(2)
+    currenttemp=(currenttemp>0&&currenttemp<30)?currenttemp:(LocationPrediction.average temperature).round(2)
     currenttemp_rs=(LocationPrediction.find_best_fit(history_time,temperature,current_time)[1]).round(2)
     currentwindspeed=(LocationPrediction.find_best_fit(history_time,wind_speed,current_time)[0]).round(2)
+    currentwindspeed=(currentwindspeed>0&&currentwindspeed<100)?currentwindspeed:(LocationPrediction.average wind_speed).round(2)
     currentwindspeed_rs=(LocationPrediction.find_best_fit(history_time,wind_speed,current_time)[1]).round(2)
     currentwinddir=(currentwindspeed==0)?"CALM":(Parser.windDirectionToString (LocationPrediction.find_best_fit(history_time,wind_direction,current_time)[0]-wind_m).round(2))
     currentwinddir_rs=(currentwindspeed==0)?currentwindspeed_rs:(LocationPrediction.find_best_fit(history_time,wind_direction,current_time)[1]).round(2)

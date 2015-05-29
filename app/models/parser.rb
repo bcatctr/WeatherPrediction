@@ -204,6 +204,7 @@ class Parser < ActiveRecord::Base
 
   def self.windDirectionToString windDir
     if windDir!=nil
+      windDir=windDir<0?windDir:windDir%360
       if (windDir>=0&&windDir<=11.25)||(windDir>=348.75&&windDir<=360)
         return "N"
       elsif windDir>=11.25&&windDir<=33.75

@@ -44,7 +44,7 @@ class PostcodePrediction < ActiveRecord::Base
           poly[degree-2][i]=coefficients[i]
         end
       rescue
-        for i in(0..coefficients.size-1)
+        for i in(0..degree)
           poly[degree-2][i]=0
         end
       end
@@ -260,7 +260,26 @@ class PostcodePrediction < ActiveRecord::Base
 
     find_location= Location.find_by postCode_id: @find_post.id
     find_weather= find_location.weathers.where("date=?",find_date)
-
+    loc=[]
+    Location.all.each do |l|
+        loc.push([l.lat,l.long])
+    end
+    loc.delete(find_location)
+    while find_weather.length==0 do
+      min=10000000000
+      nearest_loc=[0,0]
+      obj=[find_location.lat,find_location.long]
+      loc.each do |x|
+        dist=Geocoder::Calculations.distance_between(x, obj)
+        if dist<min
+          min=dist
+          nearest_loc=x
+        end
+      end
+      find_location=Location.find_by(lat:nearest_loc[0],long:nearest_loc[1])
+      find_weather= find_location.weathers.where("date=?",find_date )
+      loc.delete(nearest_loc)
+    end
     find_weather.each do|i|
       t_hours=i.time.hour
       t_mins=i.time.min
@@ -286,7 +305,9 @@ class PostcodePrediction < ActiveRecord::Base
     wind_direction.each_with_index { |t,i | wind_direction[i] += (wd_m+0.0001) }
 
     period_wind_speed= PostcodePrediction.new.best_fit(history_time,wind_speed,current_time)[0].abs.round(2) #wind_speed
+    period_wind_speed=(period_wind_speed>0&&period_wind_speed<100)?period_wind_speed:(PostcodePrediction.average wind_speed).round(2)
     period_temperature=(PostcodePrediction.new.best_fit(history_time,temperature,current_time)[0]-tep_m).round(2) #temperature
+    period_temperature=(period_temperature>0&&period_temperature<30)?period_temperature:(PostcodePrediction.average temperature).round(2)
     period_wind_direction=(period_wind_speed==0)?"CALM":(Parser.windDirectionToString (PostcodePrediction.new.best_fit(history_time,wind_direction,current_time)[0]-wd_m)) #wind_direction
     period_rainfall=PostcodePrediction.new.best_fit(history_time,rain_fall,current_time)[0].abs.round(2) #rainfall
     period_temp_pro=PostcodePrediction.new.best_fit(history_time,temperature,current_time)[1].round(2)
@@ -295,7 +316,7 @@ class PostcodePrediction < ActiveRecord::Base
     period_wdd_pro= (period_wind_speed==0)?period_ws_pro:(PostcodePrediction.new.best_fit(history_time,wind_direction,current_time)[1]).round(2)
 
     prediction_wind_speed=PostcodePrediction.new.best_fit(history_time,wind_speed,prediction_time)[0].abs.round(2)
-    prediction_wind_speed=(prediction_wind_speed>0&&prediction_wind_speed<60)?prediction_wind_speed:(PostcodePrediction.average wind_speed).round(2)
+    prediction_wind_speed=(prediction_wind_speed>0&&prediction_wind_speed<100)?prediction_wind_speed:(PostcodePrediction.average wind_speed).round(2)
     prediction_temperature=(PostcodePrediction.new.best_fit(history_time,temperature,prediction_time)[0]-tep_m).round(2)
     prediction_temperature=(prediction_temperature>0&&prediction_temperature<30)?prediction_temperature:(PostcodePrediction.average temperature).round(2)
     prediction_wind_direction=(period_wind_speed==0)?"CALM":(Parser.windDirectionToString (PostcodePrediction.new.best_fit(history_time,wind_direction,prediction_time)[0]-wd_m))
