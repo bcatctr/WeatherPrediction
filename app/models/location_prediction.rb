@@ -201,6 +201,7 @@ class LocationPrediction < ActiveRecord::Base
     end
   end
 
+  # remove the potential nil value in arrays, replace nil with the mean
   def self.removeNil array
     count=0
     sum=0
@@ -241,9 +242,10 @@ class LocationPrediction < ActiveRecord::Base
     now_time= Time.now
     hour=now_time.hour
     minute=now_time.min
+    # the prediction is based on the weathers in the same day
     prediction_time=hour*60+minute+p+1
     current_time=hour*60+minute+1
-
+    # the regression is based on the same day weathers
     find_date=now_time.strftime("%d-%m-%Y")
     find_weather=[]
     find_location=nil
@@ -251,6 +253,8 @@ class LocationPrediction < ActiveRecord::Base
     Location.all.each do |l|
       loc.push([l.lat,l.long])
     end
+    # find the location which are nearest to the what user want to find, loop until
+    # the find_weather is not empty
     while find_weather.length==0 do
       min=10000000000
       nearest_loc=[0,0]
@@ -274,7 +278,7 @@ class LocationPrediction < ActiveRecord::Base
       history_time << t_hour*60+t_min+1
       temperature <<  i.temperature
       wind_direction << (i.windDirection==nil ? i.windDirection : (i.windDirection))
-      wind_speed << (i.windSpeed==nil ? i.windSpeed : (i.windSpeed+0.0001))
+      wind_speed << (i.windSpeed==nil ? i.windSpeed : (i.windSpeed+0.0001)) #prevent the posible 0 value
       rainfall_amount << (i.rainFall==nil ? i.rainFall : (i.rainFall+0.0001))
     end
     temperature = LocationPrediction.removeNil temperature
@@ -286,7 +290,9 @@ class LocationPrediction < ActiveRecord::Base
     elsif history_time.length==1
       history_time << history_time[0]+1
     end
+
     temp_m=temperature.min.abs
+    # make all the value to be positive in case of failure in regression
     temperature.each_with_index{|t,i| temperature[i]=temperature[i]+temp_m+0.0001}
     wind_m=wind_direction.min.abs
     wind_direction.each_with_index{|w,i| wind_direction[i]=wind_direction[i]+wind_m+0.0001}

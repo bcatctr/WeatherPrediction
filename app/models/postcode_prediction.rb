@@ -1,9 +1,11 @@
 require 'matrix'
 class PostcodePrediction < ActiveRecord::Base
   belongs_to :post_code
+  # return the average of one array
   def self.average(array)
     return array.inject {|sum,x| sum +=x }/ array.size.to_f
   end
+  # the linear regression , return the value and rsquared
   def linear xs,ys,x
     x_data = xs.map {|xi| (0..1).map { |pow| (xi**pow).to_f } }
     mx = Matrix[*x_data]
@@ -29,7 +31,7 @@ class PostcodePrediction < ActiveRecord::Base
     #"#{coefficients[1].round(2)}x + #{coefficients[0].round(2)}"
     return (coefficients[1]*x+coefficients[0]).round(2) ,rsquared
   end
-
+  # the polynomial regression
   def polynomial xs,ys,x
     poly=Array.new(9) {Array.new()}
 
@@ -96,6 +98,7 @@ class PostcodePrediction < ActiveRecord::Base
 
   end
 
+  # the logarithmic regression
   def logarithmic xs,ys,x
 
     sylnx=0
@@ -131,6 +134,7 @@ class PostcodePrediction < ActiveRecord::Base
     return (b*Math.log(x)+a).round(2) ,rsquared
   end
 
+  # the exponential regression
   def exponential xs,ys,x
     begin
       n=xs.size-1
@@ -174,7 +178,7 @@ class PostcodePrediction < ActiveRecord::Base
     return  (Math.exp(a)*(Math::E**(b*x))).round(2),rsquared
   end
 
-
+  # find the best fit regeression for data and return the best fit regression result
   def best_fit xs,ys,x
     v_linear= (linear xs,ys,x)[1]
     v_polynomial =(polynomial xs,ys,x)[1]
@@ -195,7 +199,7 @@ class PostcodePrediction < ActiveRecord::Base
     end
 
   end
-
+  # remove the potential nil value in arrays, replace nil with the mean
   def self.removeNil array
     count=0
     sum=0
@@ -240,7 +244,7 @@ class PostcodePrediction < ActiveRecord::Base
     #puts prediction_time
 
     find_date=now_time.strftime("%d-%m-%Y")
-
+    # find the location in searching postcode, or return the nearest postcode location
     if PostCode.find_by postCode_id: postcode
       @find_post=PostCode.find_by postCode_id: postcode
     else
@@ -257,7 +261,7 @@ class PostcodePrediction < ActiveRecord::Base
       end
       @find_post=PostCode.find_by postCode_id: @near_postcode
     end
-
+    # loop until the find_weather are not empty
     find_location= Location.find_by postCode_id: @find_post.id
     find_weather= find_location.weathers.where("date=?",find_date)
     loc=[]
@@ -287,7 +291,7 @@ class PostcodePrediction < ActiveRecord::Base
 
       temperature <<  i.temperature
       wind_direction << (i.windDirection==nil ? i.windDirection : (i.windDirection))
-      wind_speed << (i.windSpeed==nil ? i.windSpeed : (i.windSpeed+0.0001))
+      wind_speed << (i.windSpeed==nil ? i.windSpeed : (i.windSpeed+0.0001)) #prevent the posible 0 value
       rain_fall << (i.rainFall==nil ? i.rainFall : (i.rainFall+0.0001))
     end
     temperature = PostcodePrediction.removeNil temperature
@@ -299,6 +303,7 @@ class PostcodePrediction < ActiveRecord::Base
     elsif history_time.length==1
       history_time << history_time[0]+31
     end
+    # make all the value to be positive in case of failure in regression
     tep_m=temperature.min.abs
     temperature.each_with_index { |t,i|  temperature[i] += (tep_m +0.0001)}
     wd_m=wind_direction.min.abs

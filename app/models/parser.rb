@@ -5,15 +5,20 @@ require 'nokogiri'
 require 'open-uri'
 require 'geocoder'
 require 'json'
-#set up the hash storing the pre-rainfall
+
+# set up the hash storing the pre-rainfall, this is used to calculate the precipitation
 $pre_rainfallAmount=Hash.new
 Location.all.each do |l|
   $pre_rainfallAmount.merge!(l.id=>[0.0,0])
 end
+
 class Parser < ActiveRecord::Base
+  # used to scrap all the weather data from BOM for the locations in database
   def self.jsonParsing
     doc = Nokogiri::HTML(open(ORIGINAL_URL))
+    # doc1 store all the weathers for locations whose data are refreshed every 30 minutes
     doc1 = doc.css('tr.rowleftcolumn')
+    # doc2 store all the weathers for locations where no observation is available within the last 75 minutes
     doc2 = doc.css('tr.contrast')
     doc1.each do |d|
       name=d.css('th a').children.to_s
@@ -37,6 +42,7 @@ class Parser < ActiveRecord::Base
         end
         second = time_string[1].scan(/\d\d/)[0]
         weather.time=Time.utc(Time.now.year,Time.now.month,day,hour,second)
+        # the repeat weather record is obviated
         if loc.weathers.find_by(time:weather.time)==nil
           weather.date = weather.time.strftime("%d-%m-%Y")
           temperature=d.css("td[headers*='-tmp']").children.to_s
@@ -52,6 +58,8 @@ class Parser < ActiveRecord::Base
             weather.windDirection=windDir
           end
           rainFall=d.css("td[headers*='-rainsince9am']").children.to_s
+          # the rainfall is calculated by get the difference from two near record and
+          # muitiply by 2
           if rainFall!='-'&&rainFall!='Trace'
             weather.rainFall=(rainFall.to_f-$pre_rainfallAmount[loc.id][0])*2
             if($pre_rainfallAmount[loc.id][1]==0)
@@ -125,6 +133,7 @@ class Parser < ActiveRecord::Base
     end
   end
 
+  # scape all the locations including their longitude and latitude from BOM
   def self.locationScraping
     doc = Nokogiri::HTML(open(ORIGINAL_URL))
     url_base = doc.css('th a').to_a
@@ -133,6 +142,7 @@ class Parser < ActiveRecord::Base
       d = Nokogiri::HTML(open(url))
       names = d.to_s.scan(/<h1>Latest Weather Observations for [[[:alpha:]][[:blank:]]()]{3,}/)
       name = names[0].split(" for ")[1].strip
+      #the repeat location is obviated
       if Location.find_by(location_id:name)==nil
         s = d.css("[class='stationdetails']").to_s
         location = s.scan(/-?\d{2,3}\.\d{2,3}/)
@@ -142,6 +152,7 @@ class Parser < ActiveRecord::Base
         post = a.first.postal_code.to_i
         lat=location[0].to_f
         long=location[1].to_f
+        # ignore if the location has no postcode
         if post!=0
           postcode=PostCode.find_by(postCode_id:post)
           if postcode==nil
@@ -153,6 +164,8 @@ class Parser < ActiveRecord::Base
     end
   end
 
+  # forecast.io is just used to give the current temperature and condition
+  # in GET /weather/data/:location_id/:date
   def self.currentWeather name
     loc=Location.find_by(location_id:name)
     lat_long=loc.lat.to_s+","+loc.long.to_s
@@ -161,6 +174,7 @@ class Parser < ActiveRecord::Base
     return {"temperature"=>((current["temperature"]-32)/1.8).round(2),"condition"=>current["summary"]}
   end
 
+  # transform the wind direction from symbol to float which is used in regression
   def self.windDirectionToFloat windDir
     case windDir
       when "N"
@@ -202,6 +216,7 @@ class Parser < ActiveRecord::Base
     end
   end
 
+  # transform the wind direction from float to symbol which is used in representation
   def self.windDirectionToString windDir
     if windDir!=nil
       windDir=windDir<0?windDir:windDir%360

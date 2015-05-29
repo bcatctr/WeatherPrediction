@@ -1,13 +1,15 @@
 class WeatherController < ApplicationController
 
+  # load all location in database
   def locations
     @locations=Location.all
     respond_to  do |format|
       format.html
-      format.json
+      format.json #json format is implemented in *.json.erb file
     end
   end
 
+  # load all the weathers and locations by postcode
   def showByPostcode
     postcode = PostCode.find_by(postCode_id:params[:post_code].to_i)
     date = params[:date]
@@ -18,10 +20,11 @@ class WeatherController < ApplicationController
     end
     respond_to  do |format|
       format.html
-      format.json
+      format.json #json format is implemented in *.json.erb file
     end
   end
 
+  # load all the weathers in needed location
   def showByLocation
     location_id=params[:location_id]
     loc=Location.find_by(location_id:location_id)
@@ -38,7 +41,7 @@ class WeatherController < ApplicationController
 
     respond_to  do |format|
       format.html
-      format.json
+      format.json #json format is implemented in *.json.erb file
     end
   end
 
